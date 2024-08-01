@@ -1,25 +1,35 @@
-#Load in required packages (I like to use RSQLite for database query as I am used to high-level languages like GIS interface)
+#Load in required packages (I like to use sqldf for database query as I am used to high-level languages like GIS interface)
+install.packages("sqldf")
+install.packages("vegan")
+library(tidyverse)
 library(ggplot2)
-library(RSQLite)
+library(sqldf)
+library(vegan)
 MacrosDraft<-read.csv("/Users/tjorgensen/Desktop/Underwood 2024/DATA - Macros.csv")
 
-#Playing around with practice bar
-ggplot(data=MacrosDraft,mapping=aes(x=Site,y=GraphCount,fill=Family)) + geom_bar(stat="identity",na.rm=TRUE) + scale_fill_hue()
+#Add in a "1" value in a new column for every individual macro- this is crucial for creating tables the right way
 MacrosDraft$GraphCount<-rep(1,times=601)
-help(geom_bar)
 
+#Playing around with practice bargraphs
+#Total macros as a function of site
+ggplot(data=MacrosDraft,mapping=aes(x=Site,y=GraphCount,fill=Family)) + geom_bar(stat="identity",na.rm=TRUE) + scale_fill_hue()
+#Macro biomass as a function of site
 ggplot(data=MacrosDraft,mapping=aes(x=Site,y=Weight,fill=Family)) + geom_bar(stat="identity",na.rm=TRUE) + scale_fill_hue()
+#Total macros as a function of habitat
 ggplot(data=MacrosDraft,mapping=aes(x=Habitat,y=GraphCount,fill=Family)) + geom_bar(stat="identity",na.rm=TRUE) + scale_fill_hue()
+#Macro biomass as a function of habitat
 ggplot(data=MacrosDraft,mapping=aes(x=Habitat,y=Weight,fill=Family)) + geom_bar(stat="identity",na.rm=TRUE) + scale_fill_hue()
+#Macro biomass as a function of restoration or lack thereof
 ggplot(data=MacrosDraft,mapping=aes(x=Restored,y=Weight,fill=Family)) + geom_bar(stat="identity",na.rm=TRUE) + scale_fill_hue()
 
+#Parse out and calculate the total pervious, vegetated, and tree-covered land percentage for each site's watershed
 J3LandUse<-read.csv("/Users/tjorgensen/Desktop/Underwood 2024/LandUseTables.xlsx - J3.csv")
 JMainLandUse<-read.csv("/Users/tjorgensen/Desktop/Underwood 2024/LandUseTables.xlsx - JabezMain.csv")
 HBLandUse<-read.csv("/Users/tjorgensen/Desktop/Underwood 2024/LandUseTables.xlsx - HowardsBranch.csv")
 ARLandUse<-read.csv("/Users/tjorgensen/Desktop/Underwood 2024/LandUseTables.xlsx - ArthursRun.csv")
 CCLandUse<-read.csv("/Users/tjorgensen/Desktop/Underwood 2024/LandUseTables.xlsx - CattailCreek.csv")
 CULandUse<-read.csv("/Users/tjorgensen/Desktop/Underwood 2024/LandUseTables.xlsx - CattailCreekUpper.csv")
-J3PerviousPct<-sum(sqldf("SELECT Pct FROM J3LandUse WHERE Porosity = 'Yes'"))
+J3PerviousPct<-sum(sqldf("select Pct from J3LandUse where Porosity = 'Yes'"))
 JMainPerviousPct<-sum(sqldf("SELECT Pct FROM JMainLandUse WHERE Porosity = 'Yes'"))
 HBPerviousPct<-sum(sqldf("SELECT Pct FROM HBLandUse WHERE Porosity = 'Yes'"))
 ARPerviousPct<-sum(sqldf("SELECT Pct FROM ARLandUse WHERE Porosity = 'Yes'"))
@@ -38,13 +48,15 @@ ARTreePct<-sum(sqldf("SELECT Pct FROM ARLandUse WHERE TreeCvr = 'Yes'"))
 CCTreePct<-sum(sqldf("SELECT Pct FROM CCLandUse WHERE TreeCvr = 'Yes'"))
 CUTreePct<-sum(sqldf("SELECT Pct FROM CULandUse WHERE TreeCvr = 'Yes'"))
 
+#Prepare and create a new table/dataframe able to cross-compare crucial macro, land use, etc. information by site
 SiteName<-c('Jabez 3','Jabez Main','Howards Branch','Arthurs Run','Cattail Creek Lower','Cattail Creek Upper')
 PerviousPct<-c(J3PerviousPct,JMainPerviousPct,HBPerviousPct,ARPerviousPct,CCPerviousPct,CUPerviousPct)
 VegPct<-c(J3VegPct,JMainVegPct,HBVegPct,ARVegPct,CCVegPct,CUVegPct)
 TreePct<-c(J3TreePct,JMainTreePct,HBTreePct,ARTreePct,CCTreePct,CUTreePct)
-LandUsePcts<-data.frame
 Restored<-c(TRUE,FALSE,TRUE,FALSE,TRUE,FALSE)
 LandUsePct<-data.frame(SiteName,PerviousPct,VegPct,TreePct,Restored)
+
+#Calculate and add in the macroinvertebrate-specific benchmarks
 LandUsePct$MacroTally<-c(sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'J3'")),sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'J1'")),sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'HB'")),sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'AR'")),sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'CC'")),sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'CU'")))
 LandUsePct$TotalMass<-c(sum(sqldf("SELECT Weight FROM MacrosDraft WHERE Site = 'J3'")),sum(sqldf("SELECT Weight FROM MacrosDraft WHERE Site = 'J1'")),sum(sqldf("SELECT Weight FROM MacrosDraft WHERE Site = 'HB'")),sum(sqldf("SELECT Weight FROM MacrosDraft WHERE Site = 'AR'")),sum(sqldf("SELECT Weight FROM MacrosDraft WHERE Site = 'CC'")),sum(sqldf("SELECT Weight FROM MacrosDraft WHERE Site = 'CU'")))
 LandUsePct$EPTAsPct<-c((sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'J3' AND TaxOrder = 'Ephemeroptera' OR Site = 'J3' AND TaxOrder = 'Plecoptera' OR Site = 'J3' AND TaxOrder = 'Trichoptera'"))/sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'J3'")))*100,
@@ -53,10 +65,56 @@ LandUsePct$EPTAsPct<-c((sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site
             (sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'AR' AND TaxOrder = 'Ephemeroptera' OR Site = 'AR' AND TaxOrder = 'Plecoptera' OR Site = 'AR' AND TaxOrder = 'Trichoptera'"))/sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'AR'")))*100,
             (sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'CC' AND TaxOrder = 'Ephemeroptera' OR Site = 'CC' AND TaxOrder = 'Plecoptera' OR Site = 'CC' AND TaxOrder = 'Trichoptera'"))/sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'CC'")))*100,
             (sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'CU' AND TaxOrder = 'Ephemeroptera' OR Site = 'CU' AND TaxOrder = 'Plecoptera' OR Site = 'CU' AND TaxOrder = 'Trichoptera'"))/sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'CU'")))*100)
-            
+
+# BIODIVERSITY INDICES
+# Counting total number of individual taxa for each site
+TaxaCount <- MacrosDraft %>% 
+  pivot_longer(Family) %>% 
+  count(name, value)
+print(TaxaCount)
+data.frame(TaxaCount)
+J3Macros <- data.frame(sqldf("select * from MacrosDraft where Site = 'J3'"))
+J3TaxaCount <- J3Macros %>% 
+  pivot_longer(Family) %>% 
+  count(name, value)
+data.frame(J3TaxaCount)
+JMainMacros <- data.frame(sqldf("select * from MacrosDraft where Site = 'J1'"))
+JMainTaxaCount <- JMainMacros %>% 
+  pivot_longer(Family) %>% 
+  count(name, value)
+data.frame(JMainTaxaCount)
+HBMacros <- data.frame(sqldf("select * from MacrosDraft where Site = 'HB'"))
+HBTaxaCount <- HBMacros %>% 
+  pivot_longer(Family) %>% 
+  count(name, value)
+data.frame(HBTaxaCount)
+ARMacros <- data.frame(sqldf("select * from MacrosDraft where Site = 'AR'"))
+ARTaxaCount <- ARMacros %>% 
+  pivot_longer(Family) %>% 
+  count(name, value)
+data.frame(ARTaxaCount)
+CCMacros <- data.frame(sqldf("select * from MacrosDraft where Site = 'CC'"))
+CCTaxaCount <- CCMacros %>% 
+  pivot_longer(Family) %>% 
+  count(name, value)
+data.frame(CCTaxaCount)
+CUMacros <- data.frame(sqldf("select * from MacrosDraft where Site = 'CU'"))
+CUTaxaCount <- CUMacros %>% 
+  pivot_longer(Family) %>% 
+  count(name, value)
+data.frame(CUTaxaCount)
+#Running Shannon's Diversity Index on each site (for individual species)
+J3Shannon<- -sum((J3TaxaCount$n/sum(J3TaxaCount$n))*log((J3TaxaCount$n/sum(J3TaxaCount$n))))
+JMainShannon<- -sum((JMainTaxaCount$n/sum(JMainTaxaCount$n))*log((JMainTaxaCount$n/sum(JMainTaxaCount$n))))
+HBShannon<- -sum((HBTaxaCount$n/sum(HBTaxaCount$n))*log((HBTaxaCount$n/sum(HBTaxaCount$n))))
+ARShannon<- -sum((ARTaxaCount$n/sum(ARTaxaCount$n))*log((ARTaxaCount$n/sum(ARTaxaCount$n))))
+CCShannon<- -sum((CCTaxaCount$n/sum(CCTaxaCount$n))*log((CCTaxaCount$n/sum(CCTaxaCount$n))))
+CUShannon<- -sum((CUTaxaCount$n/sum(CUTaxaCount$n))*log((CUTaxaCount$n/sum(CUTaxaCount$n))))
+#Adding it back to original dataframe
+LandUsePct$SpeciesShannonDiversity <- c(J3Shannon,JMainShannon,HBShannon,ARShannon,CCShannon,CUShannon)
+
+#Repeating the process for diversity of functional feeding group
 
 
-(sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'J3' AND TaxOrder = 'Ephemeroptera' OR Site = 'J3' AND TaxOrder = 'Plecoptera' OR Site = 'J3' AND TaxOrder = 'Trichoptera'")))
-sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'J1'"))
 
 
