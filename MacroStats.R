@@ -1,7 +1,7 @@
+#Load in required packages (I like to use RSQLite for database query as I am used to high-level languages like GIS interface)
 library(ggplot2)
 library(RSQLite)
 MacrosDraft<-read.csv("/Users/tjorgensen/Desktop/Underwood 2024/DATA - Macros.csv")
-
 
 #Playing around with practice bar
 ggplot(data=MacrosDraft,mapping=aes(x=Site,y=GraphCount,fill=Family)) + geom_bar(stat="identity",na.rm=TRUE) + scale_fill_hue()
