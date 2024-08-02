@@ -8,7 +8,7 @@ library(vegan)
 MacrosDraft<-read.csv("/Users/tjorgensen/Desktop/Underwood 2024/DATA - Macros.csv")
 
 #Add in a "1" value in a new column for every individual macro- this is crucial for creating tables the right way
-MacrosDraft$GraphCount<-rep(1,times=601)
+MacrosDraft$GraphCount<-rep(1,times=856)
 
 #Playing around with practice bargraphs
 #Total macros as a function of site
@@ -54,12 +54,12 @@ PerviousPct<-c(J3PerviousPct,JMainPerviousPct,HBPerviousPct,ARPerviousPct,CCPerv
 VegPct<-c(J3VegPct,JMainVegPct,HBVegPct,ARVegPct,CCVegPct,CUVegPct)
 TreePct<-c(J3TreePct,JMainTreePct,HBTreePct,ARTreePct,CCTreePct,CUTreePct)
 Restored<-c(TRUE,FALSE,TRUE,FALSE,TRUE,FALSE)
-LandUsePct<-data.frame(SiteName,PerviousPct,VegPct,TreePct,Restored)
+FinalDataFrame<-data.frame(SiteName,PerviousPct,VegPct,TreePct,Restored)
 
 #Calculate and add in the macroinvertebrate-specific benchmarks
-LandUsePct$MacroTally<-c(sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'J3'")),sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'J1'")),sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'HB'")),sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'AR'")),sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'CC'")),sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'CU'")))
-LandUsePct$TotalMass<-c(sum(sqldf("SELECT Weight FROM MacrosDraft WHERE Site = 'J3'")),sum(sqldf("SELECT Weight FROM MacrosDraft WHERE Site = 'J1'")),sum(sqldf("SELECT Weight FROM MacrosDraft WHERE Site = 'HB'")),sum(sqldf("SELECT Weight FROM MacrosDraft WHERE Site = 'AR'")),sum(sqldf("SELECT Weight FROM MacrosDraft WHERE Site = 'CC'")),sum(sqldf("SELECT Weight FROM MacrosDraft WHERE Site = 'CU'")))
-LandUsePct$EPTAsPct<-c((sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'J3' AND TaxOrder = 'Ephemeroptera' OR Site = 'J3' AND TaxOrder = 'Plecoptera' OR Site = 'J3' AND TaxOrder = 'Trichoptera'"))/sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'J3'")))*100,
+FinalDataFrame$MacroTally<-c(sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'J3'")),sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'J1'")),sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'HB'")),sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'AR'")),sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'CC'")),sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'CU'")))
+FinalDataFrame$TotalMass<-c(sum(sqldf("SELECT Weight FROM MacrosDraft WHERE Site = 'J3'")),sum(sqldf("SELECT Weight FROM MacrosDraft WHERE Site = 'J1'")),sum(sqldf("SELECT Weight FROM MacrosDraft WHERE Site = 'HB'")),sum(sqldf("SELECT Weight FROM MacrosDraft WHERE Site = 'AR'")),sum(sqldf("SELECT Weight FROM MacrosDraft WHERE Site = 'CC'")),sum(sqldf("SELECT Weight FROM MacrosDraft WHERE Site = 'CU'")))
+FinalDataFrame$EPTAsPct<-c((sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'J3' AND TaxOrder = 'Ephemeroptera' OR Site = 'J3' AND TaxOrder = 'Plecoptera' OR Site = 'J3' AND TaxOrder = 'Trichoptera'"))/sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'J3'")))*100,
             (sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'J1' AND TaxOrder = 'Ephemeroptera' OR Site = 'J1' AND TaxOrder = 'Plecoptera' OR Site = 'J1' AND TaxOrder = 'Trichoptera'"))/sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'J1'")))*100,
             (sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'HB' AND TaxOrder = 'Ephemeroptera' OR Site = 'HB' AND TaxOrder = 'Plecoptera' OR Site = 'HB' AND TaxOrder = 'Trichoptera'"))/sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'HB'")))*100,
             (sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'AR' AND TaxOrder = 'Ephemeroptera' OR Site = 'AR' AND TaxOrder = 'Plecoptera' OR Site = 'AR' AND TaxOrder = 'Trichoptera'"))/sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'AR'")))*100,
@@ -111,10 +111,46 @@ ARShannon<- -sum((ARTaxaCount$n/sum(ARTaxaCount$n))*log((ARTaxaCount$n/sum(ARTax
 CCShannon<- -sum((CCTaxaCount$n/sum(CCTaxaCount$n))*log((CCTaxaCount$n/sum(CCTaxaCount$n))))
 CUShannon<- -sum((CUTaxaCount$n/sum(CUTaxaCount$n))*log((CUTaxaCount$n/sum(CUTaxaCount$n))))
 #Adding it back to original dataframe
-LandUsePct$SpeciesShannonDiversity <- c(J3Shannon,JMainShannon,HBShannon,ARShannon,CCShannon,CUShannon)
+FinalDataFrame$NumTaxa<-c(count(J3TaxaCount),count(JMainTaxaCount),count(HBTaxaCount),count(ARTaxaCount),count(CCTaxaCount),count(CUTaxaCount))
+FinalDataFrame$SpeciesShannonDiversity <- c(J3Shannon,JMainShannon,HBShannon,ARShannon,CCShannon,CUShannon)
 
 #Repeating the process for diversity of functional feeding group
-
-
+FFGCount <- MacrosDraft %>% 
+  pivot_longer(FFG) %>% 
+  count(name, value)
+print(FFGCount)
+data.frame(FFGCount)
+J3FFGCount <- J3Macros %>% 
+  pivot_longer(FFG) %>% 
+  count(name, value)
+data.frame(J3FFGCount)
+JMainFFGCount <- JMainMacros %>% 
+  pivot_longer(FFG) %>% 
+  count(name, value)
+data.frame(JMainFFGCount)
+HBFFGCount <- HBMacros %>% 
+  pivot_longer(FFG) %>% 
+  count(name, value)
+data.frame(HBFFGCount)
+ARFFGCount <- ARMacros %>% 
+  pivot_longer(FFG) %>% 
+  count(name, value)
+data.frame(ARFFGCount)
+CCFFGCount <- CCMacros %>% 
+  pivot_longer(FFG) %>% 
+  count(name, value)
+data.frame(CCFFGCount)
+CUFFGCount <- CUMacros %>% 
+  pivot_longer(FFG) %>% 
+  count(name, value)
+data.frame(CUFFGCount)
+J3FFGShannon<- -sum((J3FFGCount$n/sum(J3FFGCount$n))*log((J3FFGCount$n/sum(J3FFGCount$n))))
+JMainFFGShannon<- -sum((JMainFFGCount$n/sum(JMainFFGCount$n))*log((JMainFFGCount$n/sum(JMainFFGCount$n))))
+HBFFGShannon<- -sum((HBFFGCount$n/sum(HBFFGCount$n))*log((HBFFGCount$n/sum(HBFFGCount$n))))
+ARFFGShannon<- -sum((ARFFGCount$n/sum(ARFFGCount$n))*log((ARFFGCount$n/sum(ARFFGCount$n))))
+CCFFGShannon<- -sum((CCFFGCount$n/sum(CCFFGCount$n))*log((CCFFGCount$n/sum(CCFFGCount$n))))
+CUFFGShannon<- -sum((CUFFGCount$n/sum(CUFFGCount$n))*log((CUFFGCount$n/sum(CUFFGCount$n))))
+FinalDataFrame$NumFFG<-c(count(J3FFGCount),count(JMainFFGCount),count(HBFFGCount),count(ARFFGCount),count(CCFFGCount),count(CUFFGCount))
+FinalDataFrame$FFGShannonDiversity <- c(J3FFGShannon,JMainFFGShannon,HBFFGShannon,ARFFGShannon,CCFFGShannon,CUFFGShannon)
 
 
