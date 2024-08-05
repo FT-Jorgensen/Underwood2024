@@ -159,7 +159,7 @@ FinalDataFrame$NumFFG<-c(count(J3FFGCount),count(JMainFFGCount),count(HBFFGCount
 FinalDataFrame$FFGShannonDiversity <- c(J3FFGShannon,JMainFFGShannon,HBFFGShannon,ARFFGShannon,CCFFGShannon,CUFFGShannon)
 
 #Updated 08-05-2024: Add in flow rate data for each site, collected by Troy and I on Troy's work days
-FinalDataFrame$FlowSpeed <- c()
+FinalDataFrame$FlowSpeed <- c(0.00894,0.07565,0.00533,0.00294,NA,0.02798)
 
 #STATISTICAL TESTS- ANOVA is used for comparing quantitative to one or more qualitative values
 #Spearman rank correlation is used for 
@@ -171,14 +171,15 @@ summary(FFGVsRestoration2)
 cor.test(x=FinalDataFrame$TreePct,y=FinalDataFrame$MacroTally,method='spearman')
 cor.test(x=FinalDataFrame$VegPct,y=FinalDataFrame$MacroTally,method='spearman')
 cor.test(x=FinalDataFrame$PerviousPct,y=FinalDataFrame$MacroTally,method='spearman')
+cor.test(x=FinalDataFrame$FlowSpeed,y=FinalDataFrame$MacroTally,method='spearman')
 
 cor.test(x=FinalDataFrame$TreePct,y=FinalDataFrame$FFGShannonDiversity,method='spearman')
 cor.test(x=FinalDataFrame$VegPct,y=FinalDataFrame$FFGShannonDiversity,method='spearman')
 cor.test(x=FinalDataFrame$PerviousPct,y=FinalDataFrame$FFGShannonDiversity,method='spearman')
+cor.test(x=FinalDataFrame$FlowSpeed,y=FinalDataFrame$FFGShannonDiversity,method='spearman')
 
 cor.test(x=FinalDataFrame$TreePct,y=FinalDataFrame$EPTAsPct,method='spearman')
 cor.test(x=FinalDataFrame$VegPct,y=FinalDataFrame$EPTAsPct,method='spearman')
 cor.test(x=FinalDataFrame$PerviousPct,y=FinalDataFrame$EPTAsPct,method='spearman')
-
-
+cor.test(x=FinalDataFrame$FlowSpeed,y=FinalDataFrame$EPTAsPct,method='spearman')
 
