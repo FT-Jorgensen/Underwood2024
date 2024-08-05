@@ -61,7 +61,11 @@ PerviousPct<-c(J3PerviousPct,JMainPerviousPct,HBPerviousPct,ARPerviousPct,CCPerv
 VegPct<-c(J3VegPct,JMainVegPct,HBVegPct,ARVegPct,CCVegPct,CUVegPct)
 TreePct<-c(J3TreePct,JMainTreePct,HBTreePct,ARTreePct,CCTreePct,CUTreePct)
 Restored<-c(TRUE,FALSE,TRUE,FALSE,TRUE,FALSE)
-FinalDataFrame<-data.frame(SiteName,PerviousPct,VegPct,TreePct,Restored)
+FinalDataFrame<-data.frame(Restored,SiteName,PerviousPct,VegPct,TreePct)
+#Add in size of each watershed in square meters
+FinalDataFrame$Size <- c(3032553,10389250,948410,428450,6373450,4471850)
+#Updated 08-05-2024: Add in flow rate data for each site, collected by Troy and I on Troy's work days
+FinalDataFrame$FlowSpeed <- c(0.00894,0.07565,0.00533,0.00294,NA,0.02798) #UPDATE THIS AGAIN ON 08/06 WHEN TROY HAS FINAL VALUE
 
 #Calculate and add in the macroinvertebrate-specific benchmarks
 FinalDataFrame$MacroTally<-c(sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'J3'")),sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'J1'")),sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'HB'")),sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'AR'")),sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'CC'")),sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'CU'")))
@@ -159,11 +163,6 @@ CCFFGShannon<- -sum((CCFFGCount$n/sum(CCFFGCount$n))*log((CCFFGCount$n/sum(CCFFG
 CUFFGShannon<- -sum((CUFFGCount$n/sum(CUFFGCount$n))*log((CUFFGCount$n/sum(CUFFGCount$n))))
 FinalDataFrame$NumFFG<-c(count(J3FFGCount),count(JMainFFGCount),count(HBFFGCount),count(ARFFGCount),count(CCFFGCount),count(CUFFGCount))
 FinalDataFrame$FFGShannonDiversity <- c(J3FFGShannon,JMainFFGShannon,HBFFGShannon,ARFFGShannon,CCFFGShannon,CUFFGShannon)
-
-#Updated 08-05-2024: Add in flow rate data for each site, collected by Troy and I on Troy's work days
-FinalDataFrame$FlowSpeed <- c(0.00894,0.07565,0.00533,0.00294,NA,0.02798)
-#Add in size of each watershed in square meters
-FinalDataFrame$Size <- c(3032553,10389250,948410,428450,6373450,4471850)
 
 #STATISTICAL TESTS- ANOVA is used for comparing quantitative to one or more qualitative values
 #Spearman rank correlation is used for 
