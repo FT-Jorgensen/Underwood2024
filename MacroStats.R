@@ -10,6 +10,8 @@ library(ggpubr)
 library(tidyverse)
 library(broom)
 library(AICcmodavg)
+library(wesanderson)
+
 MacrosDraft<-read.csv("/Users/tjorgensen/Desktop/Underwood 2024/DATA - Macros.csv")
 
 #Add in a "1" value in a new column for every individual macro- this is crucial for creating tables the right way
@@ -160,6 +162,8 @@ FinalDataFrame$FFGShannonDiversity <- c(J3FFGShannon,JMainFFGShannon,HBFFGShanno
 
 #Updated 08-05-2024: Add in flow rate data for each site, collected by Troy and I on Troy's work days
 FinalDataFrame$FlowSpeed <- c(0.00894,0.07565,0.00533,0.00294,NA,0.02798)
+#Add in size of each watershed in square meters
+FinalDataFrame$Size <- c(3032553,10389250,948410,428450,6373450,4471850)
 
 #STATISTICAL TESTS- ANOVA is used for comparing quantitative to one or more qualitative values
 #Spearman rank correlation is used for 
@@ -172,14 +176,24 @@ cor.test(x=FinalDataFrame$TreePct,y=FinalDataFrame$MacroTally,method='spearman')
 cor.test(x=FinalDataFrame$VegPct,y=FinalDataFrame$MacroTally,method='spearman')
 cor.test(x=FinalDataFrame$PerviousPct,y=FinalDataFrame$MacroTally,method='spearman')
 cor.test(x=FinalDataFrame$FlowSpeed,y=FinalDataFrame$MacroTally,method='spearman')
+cor.test(x=FinalDataFrame$Size,y=FinalDataFrame$MacroTally,method='spearman')
 
 cor.test(x=FinalDataFrame$TreePct,y=FinalDataFrame$FFGShannonDiversity,method='spearman')
 cor.test(x=FinalDataFrame$VegPct,y=FinalDataFrame$FFGShannonDiversity,method='spearman')
 cor.test(x=FinalDataFrame$PerviousPct,y=FinalDataFrame$FFGShannonDiversity,method='spearman')
 cor.test(x=FinalDataFrame$FlowSpeed,y=FinalDataFrame$FFGShannonDiversity,method='spearman')
+cor.test(x=FinalDataFrame$Size,y=FinalDataFrame$FFGShannonDiversity,method='spearman')
 
 cor.test(x=FinalDataFrame$TreePct,y=FinalDataFrame$EPTAsPct,method='spearman')
 cor.test(x=FinalDataFrame$VegPct,y=FinalDataFrame$EPTAsPct,method='spearman')
 cor.test(x=FinalDataFrame$PerviousPct,y=FinalDataFrame$EPTAsPct,method='spearman')
 cor.test(x=FinalDataFrame$FlowSpeed,y=FinalDataFrame$EPTAsPct,method='spearman')
+cor.test(x=FinalDataFrame$Size,y=FinalDataFrame$EPTAsPct,method='spearman')
 
+#Creating more plots for the PowerPoint visualization
+ggplot(data=FinalDataFrame,mapping=aes(x=TreePct,y=MacroTally,fill=EPTAsPct)) + geom_point()
+ggplot(data=FinalDataFrame,mapping=aes(x=VegPct,y=MacroTally,fill=EPTAsPct)) + geom_point()
+ggplot(data=FinalDataFrame,mapping=aes(x=PerviousPct,y=MacroTally,fill=EPTAsPct)) + geom_bar(stat="identity") + scale_fill_manual(wes_palette("AsteroidCity2", 6, type = "discrete"))
+pal <- wes_palette("AsteroidCity2", 6, type = "discrete")
+
+ggplot(data=FinalDataFrame,mapping=aes(x=Size,y=MacroTally,fill=EPTAsPct)) + geom_point()
