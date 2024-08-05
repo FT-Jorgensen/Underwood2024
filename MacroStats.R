@@ -1,10 +1,15 @@
 #Load in required packages (I like to use sqldf for database query as I am used to high-level languages like GIS interface)
 install.packages("sqldf")
 install.packages("vegan")
+install.packages("ggpubr")
 library(tidyverse)
 library(ggplot2)
 library(sqldf)
 library(vegan)
+library(ggpubr)
+library(tidyverse)
+library(broom)
+library(AICcmodavg)
 MacrosDraft<-read.csv("/Users/tjorgensen/Desktop/Underwood 2024/DATA - Macros.csv")
 
 #Add in a "1" value in a new column for every individual macro- this is crucial for creating tables the right way
@@ -152,5 +157,28 @@ CCFFGShannon<- -sum((CCFFGCount$n/sum(CCFFGCount$n))*log((CCFFGCount$n/sum(CCFFG
 CUFFGShannon<- -sum((CUFFGCount$n/sum(CUFFGCount$n))*log((CUFFGCount$n/sum(CUFFGCount$n))))
 FinalDataFrame$NumFFG<-c(count(J3FFGCount),count(JMainFFGCount),count(HBFFGCount),count(ARFFGCount),count(CCFFGCount),count(CUFFGCount))
 FinalDataFrame$FFGShannonDiversity <- c(J3FFGShannon,JMainFFGShannon,HBFFGShannon,ARFFGShannon,CCFFGShannon,CUFFGShannon)
+
+#Updated 08-05-2024: Add in flow rate data for each site, collected by Troy and I on Troy's work days
+FinalDataFrame$FlowSpeed <- c()
+
+#STATISTICAL TESTS- ANOVA is used for comparing quantitative to one or more qualitative values
+#Spearman rank correlation is used for 
+FFGVsRestoration <- aov(FFGShannonDiversity~Restored,data=FinalDataFrame)
+summary(FFGVsRestoration)
+FFGVsRestoration2 <- aov(FFGShannonDiversity~Restored+TreePct,data=FinalDataFrame)
+summary(FFGVsRestoration2)
+
+cor.test(x=FinalDataFrame$TreePct,y=FinalDataFrame$MacroTally,method='spearman')
+cor.test(x=FinalDataFrame$VegPct,y=FinalDataFrame$MacroTally,method='spearman')
+cor.test(x=FinalDataFrame$PerviousPct,y=FinalDataFrame$MacroTally,method='spearman')
+
+cor.test(x=FinalDataFrame$TreePct,y=FinalDataFrame$FFGShannonDiversity,method='spearman')
+cor.test(x=FinalDataFrame$VegPct,y=FinalDataFrame$FFGShannonDiversity,method='spearman')
+cor.test(x=FinalDataFrame$PerviousPct,y=FinalDataFrame$FFGShannonDiversity,method='spearman')
+
+cor.test(x=FinalDataFrame$TreePct,y=FinalDataFrame$EPTAsPct,method='spearman')
+cor.test(x=FinalDataFrame$VegPct,y=FinalDataFrame$EPTAsPct,method='spearman')
+cor.test(x=FinalDataFrame$PerviousPct,y=FinalDataFrame$EPTAsPct,method='spearman')
+
 
 
