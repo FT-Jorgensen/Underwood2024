@@ -197,5 +197,3 @@ pal <- wes_palette("AsteroidCity2", 6, type = "discrete")
 
 ggplot(data=FinalDataFrame,mapping=aes(x=Size,y=MacroTally,fill=EPTAsPct)) + geom_point()
 
-
-
