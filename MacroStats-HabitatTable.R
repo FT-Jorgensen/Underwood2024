@@ -81,7 +81,7 @@ Size<-c(rep(3032553,times=3),rep(10389250,times=3),rep(948410,times=3),
         rep(428450,times=3),rep(6373450,times=3),rep(4471850,times=3))
 Habitat<-c("R","V","R","U","R","U","R","V","R","L","L","L","R","R","V","U","U","V")
 FlowRate<-c(rep(0.00894,times=3),rep(0.07565,times=3),rep(0.00533,times=3),
-            rep(0.00294,times=3),rep(NA,times=3),rep(0.02798,times=3))
+            rep(0.00294,times=3),rep(0.04446,times=3),rep(0.02798,times=3))
 MacroTally<-c(sum(J31Tbl$GraphCount),sum(J32Tbl$GraphCount),sum(J33Tbl$GraphCount),
              sum(JMain1Tbl$GraphCount),sum(JMain2Tbl$GraphCount),sum(JMain3Tbl$GraphCount),
              sum(HB1Tbl$GraphCount),sum(HB2Tbl$GraphCount),sum(HB3Tbl$GraphCount),
@@ -208,15 +208,11 @@ CC3Shannon<- -sum((CC3TaxaCount$n/sum(CC3TaxaCount$n))*log((CC3TaxaCount$n/sum(C
 CU1Shannon<- -sum((CU1TaxaCount$n/sum(CU1TaxaCount$n))*log((CU1TaxaCount$n/sum(CU1TaxaCount$n))))
 CU2Shannon<- -sum((CU2TaxaCount$n/sum(CU2TaxaCount$n))*log((CU2TaxaCount$n/sum(CU2TaxaCount$n))))
 CU3Shannon<- -sum((CU3TaxaCount$n/sum(CU3TaxaCount$n))*log((CU3TaxaCount$n/sum(CU3TaxaCount$n))))
-
-
-FinalDataFrameHABITAT<-data.frame(SiteName,Restored,Size,Habitat,PerviousPct,VegPct,TreePct,FlowRate,MacroTally,TotalMass,EPTAsPct)
 FinalDataFrameHABITAT$NumTaxa<- c(count(J31TaxaCount),count(J32TaxaCount),count(J33TaxaCount),
                                   count(JMain1TaxaCount),count(JMain2TaxaCount),count(JMain3TaxaCount),
                                   count(HB1TaxaCount),count(HB2TaxaCount),count(HB3TaxaCount),
                                   count(AR1TaxaCount),count(AR2TaxaCount),count(AR3TaxaCount),
                                   count(CC1TaxaCount),count(CC2TaxaCount),count(CC3TaxaCount),
                                   count(CU1TaxaCount),count(CU2TaxaCount),count(CU3TaxaCount))
-
 
 
