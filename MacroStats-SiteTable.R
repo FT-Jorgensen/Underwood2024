@@ -165,7 +165,7 @@ FinalDataFrame$NumFFG<-c(count(J3FFGCount),count(JMainFFGCount),count(HBFFGCount
 FinalDataFrame$FFGShannonDiversity <- c(J3FFGShannon,JMainFFGShannon,HBFFGShannon,ARFFGShannon,CCFFGShannon,CUFFGShannon)
 
 #STATISTICAL TESTS- ANOVA is used for comparing quantitative to one or more qualitative values
-#Spearman rank correlation is used for 
+#Spearman rank correlation is used for  
 FFGVsRestoration <- aov(FFGShannonDiversity~Restored,data=FinalDataFrame)
 summary(FFGVsRestoration)
 FFGVsRestoration2 <- aov(FFGShannonDiversity~Restored+TreePct,data=FinalDataFrame)
@@ -195,5 +195,5 @@ ggplot(data=FinalDataFrame,mapping=aes(x=VegPct,y=MacroTally,fill=EPTAsPct)) + g
 ggplot(data=FinalDataFrame,mapping=aes(x=PerviousPct,y=MacroTally,fill=EPTAsPct)) + geom_bar(stat="identity") + scale_fill_manual(wes_palette("AsteroidCity2", 6, type = "discrete"))
 pal <- wes_palette("AsteroidCity2", 6, type = "discrete")
 
-ggplot(data=FinalDataFrame,mapping=aes(x=Size,y=MacroTally,fill=EPTAsPct)) + geom_point() + 
+ggplot(data=FinalDataFrame,mapping=aes(x=Size,y=MacroTally,fill=EPTAsPct)) + geom_point() 
 

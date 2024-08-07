@@ -687,14 +687,61 @@ Diversity Index but run on FFG instead of taxa</p>
 Question 1- Are restored stream-wetland complexes supporting a higher
 biomass and functional feeding group diversity of macroinvertebrates
 than unrestored streams? Independent variable: Restored Dependent
-variable: TotalMass, EPTAsPct, NumFFG, FFGDiversity (Qualitative
-vs. Quantitative- best to use ANOVAs to test and bar graphs to
+variable: TotalMass, EPTAsPct, NumFFG, FFGDiversity (Qualitative vs.
+Quantitative- best to use Kruskal-Wallis to test and bar graphs to
 display)</p>
-<pre class="r"><code>aov1&lt;-aov(TotalMass~Restored,data=FinalDataFrameHABITAT)
-summary(aov1)</code></pre>
-<pre><code>##             Df Sum Sq Mean Sq F value Pr(&gt;F)
-## Restored     1   1850    1850    0.69  0.418
-## Residuals   16  42909    2682</code></pre>
+<pre class="r"><code>kruskal.test(TotalMass~Restored,data=FinalDataFrameHABITAT)</code></pre>
+<pre><code>## 
+##  Kruskal-Wallis rank sum test
+## 
+## data:  TotalMass by Restored
+## Kruskal-Wallis chi-squared = 6.7856, df = 1, p-value = 0.00919</code></pre>
+<pre class="r"><code>kruskal.test(EPTAsPct~Restored,data=FinalDataFrameHABITAT)</code></pre>
+<pre><code>## 
+##  Kruskal-Wallis rank sum test
+## 
+## data:  EPTAsPct by Restored
+## Kruskal-Wallis chi-squared = 0.022697, df = 1, p-value = 0.8802</code></pre>
+<pre class="r"><code>kruskal.test(FFGDiversity~Restored,data=FinalDataFrameHABITAT)</code></pre>
+<pre><code>## 
+##  Kruskal-Wallis rank sum test
+## 
+## data:  FFGDiversity by Restored
+## Kruskal-Wallis chi-squared = 0.86054, df = 1, p-value = 0.3536</code></pre>
+<pre class="r"><code>kruskal.test(ShannonDiversity~Restored,data=FinalDataFrameHABITAT)</code></pre>
+<pre><code>## 
+##  Kruskal-Wallis rank sum test
+## 
+## data:  ShannonDiversity by Restored
+## Kruskal-Wallis chi-squared = 1.2196, df = 1, p-value = 0.2694</code></pre>
+<p>Also of interest: are any of these strongly correlated with the type
+of habitat (also a quantitative measure)?</p>
+<pre class="r"><code>kruskal.test(TotalMass~Habitat,data=FinalDataFrameHABITAT)</code></pre>
+<pre><code>## 
+##  Kruskal-Wallis rank sum test
+## 
+## data:  TotalMass by Habitat
+## Kruskal-Wallis chi-squared = 10.694, df = 3, p-value = 0.0135</code></pre>
+<pre class="r"><code>kruskal.test(EPTAsPct~Habitat,data=FinalDataFrameHABITAT)</code></pre>
+<pre><code>## 
+##  Kruskal-Wallis rank sum test
+## 
+## data:  EPTAsPct by Habitat
+## Kruskal-Wallis chi-squared = 0.36855, df = 3, p-value = 0.9467</code></pre>
+<pre class="r"><code>kruskal.test(FFGDiversity~Habitat,data=FinalDataFrameHABITAT)</code></pre>
+<pre><code>## 
+##  Kruskal-Wallis rank sum test
+## 
+## data:  FFGDiversity by Habitat
+## Kruskal-Wallis chi-squared = 4.8902, df = 3, p-value = 0.18</code></pre>
+<pre class="r"><code>kruskal.test(ShannonDiversity~Habitat,data=FinalDataFrameHABITAT)</code></pre>
+<pre><code>## 
+##  Kruskal-Wallis rank sum test
+## 
+## data:  ShannonDiversity by Habitat
+## Kruskal-Wallis chi-squared = 5.2502, df = 3, p-value = 0.1544</code></pre>
+<p>Total biomass per site is statistically correlated with both
+restoration status and habitat type.</p>
 </div>
 
 

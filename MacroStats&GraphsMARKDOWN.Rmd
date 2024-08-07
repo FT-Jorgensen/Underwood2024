@@ -3,6 +3,9 @@ title: "MacroStatsGraphsMARKDOWN"
 author: "Teddy Jorgensen"
 date: "2024-08-07"
 output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
 ```{r setup, include=FALSE}
@@ -10,6 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## PART ONE ASSEMBLING THE DATA
+
 Load in all relevant and required packages
 
 ```{r}
@@ -21,7 +25,9 @@ library(broom)
 library(AICcmodavg)
 ```
 
-Read in the macroinvertebrates datasheet from the local computer, and add in a singular "1" value for every individual macro(this makes creating some graphs much easier), then upload the land use data
+Read in the macroinvertebrates datasheet from the local computer, and
+add in a singular "1" value for every individual macro(this makes
+creating some graphs much easier), then upload the land use data
 
 ```{r}
 
@@ -39,7 +45,11 @@ CULandUse<-read.csv("/Users/tjorgensen/Desktop/Underwood 2024/LandUseTables.xlsx
 
 ```
 
-We are interested in three land use metrics: percent pervious surface in watershed, percent vegetated surface in watershed, and percent tree cover in wetland. I use the sqldf package to gather and calculate these (other packages would work but I am most used to SQL language as a GIS user)
+We are interested in three land use metrics: percent pervious surface in
+watershed, percent vegetated surface in watershed, and percent tree
+cover in wetland. I use the sqldf package to gather and calculate these
+(other packages would work but I am most used to SQL language as a GIS
+user)
 
 ```{r}
 
@@ -64,7 +74,9 @@ CUTreePct<-sum(sqldf("SELECT Pct FROM CULandUse WHERE TreeCvr = 'Yes'"))
 
 ```
 
-Focusing now on manipulating the macroinvertebrates table, I find that the creation of certan data later on will become easier if we give each sampling site its own dataframe
+Focusing now on manipulating the macroinvertebrates table, I find that
+the creation of certan data later on will become easier if we give each
+sampling site its own dataframe
 
 ```{r}
 J31Tbl<-data.frame(sqldf("SELECT * FROM MacrosDraft WHERE Site = 'J3' AND SiteNo = '1'"))
@@ -87,7 +99,9 @@ CU2Tbl<-data.frame(sqldf("SELECT * FROM MacrosDraft WHERE Site = 'CU' AND SiteNo
 CU3Tbl<-data.frame(sqldf("SELECT * FROM MacrosDraft WHERE Site = 'CU' AND SiteNo = '3'"))
 ```
 
-Create the table that will be used for our statistical calculations- one where a series of dependent and independent variables are grouped under the key attribute of sampling site
+Create the table that will be used for our statistical calculations- one
+where a series of dependent and independent variables are grouped under
+the key attribute of sampling site
 
 ```{r,echo=FALSE}
 SiteName<-c('Jabez 3.1','Jabez 3.2','Jabez 3.3',
@@ -358,51 +372,110 @@ FinalDataFrameHABITAT$FFGDiversity<- c(J31FFGShannon,J32FFGShannon,J33FFGShannon
 
 ```
 
-INDEPENDENT VARIABLES
-SiteName= the name of the river the sample was taken from plus a 1 2 or 3 indicating the downstream to upstream-most position
-Restored= whether or not the site had undergone RSC engineering by Underwood
-Habitat= qualitative measurement of what might attract macros to the area
-  R: Cobble riffle
-  V: Aquatic vegetation (living)
-  U: Shaded undercut bank
-  L: Dead layers of leaf litter
-Size= Square meterage of the watershed, measured from downstream-most site
-FlowRate= Cubic centimeters per second of water moving through a carefully-chosen transect of the given river
-DO= Dissolved oxygen measured in miligrams per liter by YSI sampler
-Temperature= Temperature of water in degrees Celsius measured by YSI sampler
-Conductivity= Conductivity of water in S/cm measured by YSI sampler
-PblCount= Average of the three longest pebble axes, taken for 25 pebbles at each site (modified Wolman pebble count)
-PerviousPct= % of river's watershed that is covered in a pervious surface (forest cover, cropland, etc)
-VegPct= % of river's watershed that is actively covered in vegetation
-TreePct= % of river's watershed that is wooded
-Date= day of year sample was taken
+INDEPENDENT VARIABLES SiteName= the name of the river the sample was
+taken from plus a 1 2 or 3 indicating the downstream to upstream-most
+position Restored= whether or not the site had undergone RSC engineering
+by Underwood Habitat= qualitative measurement of what might attract
+macros to the area R: Cobble riffle V: Aquatic vegetation (living) U:
+Shaded undercut bank L: Dead layers of leaf litter Size= Square meterage
+of the watershed, measured from downstream-most site FlowRate= Cubic
+centimeters per second of water moving through a carefully-chosen
+transect of the given river DO= Dissolved oxygen measured in miligrams
+per liter by YSI sampler Temperature= Temperature of water in degrees
+Celsius measured by YSI sampler Conductivity= Conductivity of water in
+S/cm measured by YSI sampler PblCount= Average of the three longest
+pebble axes, taken for 25 pebbles at each site (modified Wolman pebble
+count) PerviousPct= % of river's watershed that is covered in a pervious
+surface (forest cover, cropland, etc) VegPct= % of river's watershed
+that is actively covered in vegetation TreePct= % of river's watershed
+that is wooded Date= day of year sample was taken
 
-DEPENDENT VARIABLES
-MacroTally= Raw number of macroinvertebrates at each site
-TotalMass= Sum of mass (in mg) of all macroinvertebrates at sampling site
-EPTAsPct= The % of the total number of macroinvertebrates that were Ephemeroptera (mayflies), Plecoptera (stoneflies), or Trichoptera (caddisflies). These three orders are of special importance because they are highly disturbance-sensitive.
-NumTaxa= Number of distinct taxa at a sampling site
-ShannonDiversity= Site's Shannon Diversity Index value, a good metric that factors in both species richness and species evenness
-NumFFG= Number of distinct functional feeding groups (shredder, scraper, gatherer, predator, filterer) represented in a sampling site's biota
-FFGDiversity= The Shannon Diversity Index but run on FFG instead of taxa
+DEPENDENT VARIABLES MacroTally= Raw number of macroinvertebrates at each
+site TotalMass= Sum of mass (in mg) of all macroinvertebrates at
+sampling site EPTAsPct= The % of the total number of macroinvertebrates
+that were Ephemeroptera (mayflies), Plecoptera (stoneflies), or
+Trichoptera (caddisflies). These three orders are of special importance
+because they are highly disturbance-sensitive. NumTaxa= Number of
+distinct taxa at a sampling site ShannonDiversity= Site's Shannon
+Diversity Index value, a good metric that factors in both species
+richness and species evenness NumFFG= Number of distinct functional
+feeding groups (shredder, scraper, gatherer, predator, filterer)
+represented in a sampling site's biota FFGDiversity= The Shannon
+Diversity Index but run on FFG instead of taxa
 
-
-
-##PART TWO ANSWERING THE QUESTIONS ~ GRAPHS AND STATISTICAL TESTS
-Question 1- Are restored stream-wetland complexes supporting a higher biomass and functional feeding group diversity of macroinvertebrates than unrestored streams?
+##PART TWO ANSWERING THE QUESTIONS ~ STATISTICAL TESTS
+Question 1- Are restored stream-wetland complexes supporting a higher
+biomass and functional feeding group diversity of macroinvertebrates
+than unrestored streams? 
 Independent variable: Restored
-Dependent variable: TotalMass, EPTAsPct, NumFFG, FFGDiversity
-(Qualitative vs. Quantitative- best to use ANOVAs to test and bar graphs to display)
+Dependent variable: TotalMass, EPTAsPct, NumFFG, FFGDiversity (Qualitative vs. Quantitative- best to use Kruskal-Wallis to test and bar graphs to display)
 
 ```{r}
-aov1<-aov(TotalMass~Restored,data=FinalDataFrameHABITAT)
-summary(aov1)
+kruskal.test(MacroTally~Restored,data=FinalDataFrameHABITAT)
 
-aov2<-aov(EPTAsPct~Restored,data=FinalDataFrameHABITAT)
-summary(aov2)
+kruskal.test(TotalMass~Restored,data=FinalDataFrameHABITAT)
 
-aov3<-aov(EPTAsPct~Restored,data=FinalDataFrameHABITAT)
-summary(aov2)
+kruskal.test(EPTAsPct~Restored,data=FinalDataFrameHABITAT)
 
+kruskal.test(FFGDiversity~Restored,data=FinalDataFrameHABITAT)
 
+kruskal.test(ShannonDiversity~Restored,data=FinalDataFrameHABITAT)
+
+```
+Also of interest: are any of these strongly correlated with the type of habitat (also a quantitative measure)?
+
+```{r}
+kruskal.test(MacroTally~Habitat,data=FinalDataFrameHABITAT)
+
+kruskal.test(TotalMass~Habitat,data=FinalDataFrameHABITAT)
+
+kruskal.test(EPTAsPct~Habitat,data=FinalDataFrameHABITAT)
+
+kruskal.test(FFGDiversity~Habitat,data=FinalDataFrameHABITAT)
+
+kruskal.test(ShannonDiversity~Habitat,data=FinalDataFrameHABITAT)
+
+```
+Total biomass per site is statistically correlated with both restoration status and habitat type- in other words there is a significant difference in these values between restored and unrestored sites. We can use the pairwise wilcox test to determine which of these groups were highest.
+
+```{r}
+pairwise.wilcox.test(FinalDataFrameHABITAT$TotalMass, FinalDataFrameHABITAT$Restored,
+                 p.adjust.method = "BH")
+pairwise.wilcox.test(FinalDataFrameHABITAT$TotalMass, FinalDataFrameHABITAT$Habitat,
+                 p.adjust.method = "BH")
+
+```
+
+Question 2- What is the relationship between macroinvertebrate community health and the surrounding land use of the area?
+Independent Variable: Land Use variables
+Dependent variable: MacroTally (Spearman rank correlation)
+
+```{r}
+cor.test(x=FinalDataFrameHABITAT$TreePct,y=FinalDataFrameHABITAT$MacroTally,method='spearman')
+cor.test(x=FinalDataFrameHABITAT$VegPct,y=FinalDataFrameHABITAT$MacroTally,method='spearman')
+cor.test(x=FinalDataFrameHABITAT$PerviousPct,y=FinalDataFrameHABITAT$MacroTally,method='spearman')
+
+ggplot(data=FinalDataFrameHABITAT,mapping=aes(x=TreePct,y=MacroTally))+geom_point()
+
+```
+
+Question 3- Does the biomass and functional feeding group diversity of macroinvertebrates in restored streams depend on the surrounding land use?
+Independent: Land Use variables
+Dependent: TotalMass, EPTAsPct, NumFFG, FFGDiversity (Quantitative vs. Quantitative- needs Spearman rank correlation
+
+```{r}
+cor.test(x=FinalDataFrameHABITAT$TreePct,y=FinalDataFrameHABITAT$TotalMass,method='spearman')
+cor.test(x=FinalDataFrameHABITAT$TreePct,y=FinalDataFrameHABITAT$EPTAsPct,method='spearman')
+cor.test(x=FinalDataFrameHABITAT$TreePct,y=FinalDataFrameHABITAT$ShannonDiversity,method='spearman')
+cor.test(x=FinalDataFrameHABITAT$TreePct,y=FinalDataFrameHABITAT$FFGDiversity,method='spearman')
+cor.test(x=FinalDataFrameHABITAT$VegPct,y=FinalDataFrameHABITAT$TotalMass,method='spearman')
+cor.test(x=FinalDataFrameHABITAT$VegPct,y=FinalDataFrameHABITAT$EPTAsPct,method='spearman')
+cor.test(x=FinalDataFrameHABITAT$VegPct,y=FinalDataFrameHABITAT$ShannonDiversity,method='spearman')
+cor.test(x=FinalDataFrameHABITAT$VegPct,y=FinalDataFrameHABITAT$FFGDiversity,method='spearman')
+cor.test(x=FinalDataFrameHABITAT$PerviousPct,y=FinalDataFrameHABITAT$TotalMass,method='spearman')
+cor.test(x=FinalDataFrameHABITAT$PerviousPct,y=FinalDataFrameHABITAT$EPTAsPct,method='spearman')
+cor.test(x=FinalDataFrameHABITAT$PerviousPct,y=FinalDataFrameHABITAT$ShannonDiversity,method='spearman')
+cor.test(x=FinalDataFrameHABITAT$PerviousPct,y=FinalDataFrameHABITAT$FFGDiversity,method='spearman')
+
+```
 
