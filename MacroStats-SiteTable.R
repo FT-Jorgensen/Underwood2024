@@ -65,7 +65,7 @@ FinalDataFrame<-data.frame(Restored,SiteName,PerviousPct,VegPct,TreePct)
 #Add in size of each watershed in square meters
 FinalDataFrame$Size <- c(3032553,10389250,948410,428450,6373450,4471850)
 #Updated 08-05-2024: Add in flow rate data for each site, collected by Troy and I on Troy's work days
-FinalDataFrame$FlowSpeed <- c(0.00894,0.07565,0.00533,0.00294,NA,0.02798) #UPDATE THIS AGAIN ON 08/06 WHEN TROY HAS FINAL VALUE
+FinalDataFrame$FlowSpeed <- c(0.00894,0.07565,0.00533,0.00294,0.04446,0.02798) #UPDATE THIS AGAIN ON 08/06 WHEN TROY HAS FINAL VALUE
 
 #Calculate and add in the macroinvertebrate-specific benchmarks
 FinalDataFrame$MacroTally<-c(sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'J3'")),sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'J1'")),sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'HB'")),sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'AR'")),sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'CC'")),sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'CU'")))
@@ -190,10 +190,10 @@ cor.test(x=FinalDataFrame$FlowSpeed,y=FinalDataFrame$EPTAsPct,method='spearman')
 cor.test(x=FinalDataFrame$Size,y=FinalDataFrame$EPTAsPct,method='spearman')
 
 #Creating more plots for the PowerPoint visualization
-ggplot(data=FinalDataFrame,mapping=aes(x=TreePct,y=MacroTally,fill=EPTAsPct)) + geom_point()
+ggplot(data=FinalDataFrame,mapping=aes(x=TreePct,y=MacroTally,fill=EPTAsPct)) + geom_point() + 
 ggplot(data=FinalDataFrame,mapping=aes(x=VegPct,y=MacroTally,fill=EPTAsPct)) + geom_point()
 ggplot(data=FinalDataFrame,mapping=aes(x=PerviousPct,y=MacroTally,fill=EPTAsPct)) + geom_bar(stat="identity") + scale_fill_manual(wes_palette("AsteroidCity2", 6, type = "discrete"))
 pal <- wes_palette("AsteroidCity2", 6, type = "discrete")
 
-ggplot(data=FinalDataFrame,mapping=aes(x=Size,y=MacroTally,fill=EPTAsPct)) + geom_point()
+ggplot(data=FinalDataFrame,mapping=aes(x=Size,y=MacroTally,fill=EPTAsPct)) + geom_point() + 
 

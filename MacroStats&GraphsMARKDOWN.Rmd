@@ -1,28 +1,48 @@
-#This script creates a similar "FinalDataFrame" but instead groups attributes by individual sampling location as opposed to whole site
-install.packages("sqldf")
-install.packages("vegan")
-install.packages("ggpubr")
+---
+title: "MacroStatsGraphsMARKDOWN"
+author: "Teddy Jorgensen"
+date: "2024-08-07"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## PART ONE ASSEMBLING THE DATA
+Load in all relevant and required packages
+
+```{r}
 library(tidyverse)
 library(ggplot2)
 library(sqldf)
-library(vegan)
 library(ggpubr)
-library(tidyverse)
 library(broom)
 library(AICcmodavg)
-library(wesanderson)
+```
+
+Read in the macroinvertebrates datasheet from the local computer, and add in a singular "1" value for every individual macro(this makes creating some graphs much easier), then upload the land use data
+
+```{r}
 
 MacrosDraft<-read.csv("/Users/tjorgensen/Desktop/Underwood 2024/DATA - Macros.csv")
-#Add in a "1" value in a new column for every individual macro- this is crucial for creating tables the right way
-MacrosDraft$GraphCount<-rep(1,times=856)
+MacrosDraft$GraphCount<-rep(1,times=count(MacrosDraft))
 
-#Parse out and calculate the total pervious, vegetated, and tree-covered land percentage for each site's watershed
+SiteData<-read.csv("/Users/tjorgensen/Desktop/Underwood 2024/DATA - SiteData.csv")
+
 J3LandUse<-read.csv("/Users/tjorgensen/Desktop/Underwood 2024/LandUseTables.xlsx - J3.csv")
 JMainLandUse<-read.csv("/Users/tjorgensen/Desktop/Underwood 2024/LandUseTables.xlsx - JabezMain.csv")
 HBLandUse<-read.csv("/Users/tjorgensen/Desktop/Underwood 2024/LandUseTables.xlsx - HowardsBranch.csv")
 ARLandUse<-read.csv("/Users/tjorgensen/Desktop/Underwood 2024/LandUseTables.xlsx - ArthursRun.csv")
 CCLandUse<-read.csv("/Users/tjorgensen/Desktop/Underwood 2024/LandUseTables.xlsx - CattailCreek.csv")
 CULandUse<-read.csv("/Users/tjorgensen/Desktop/Underwood 2024/LandUseTables.xlsx - CattailCreekUpper.csv")
+
+```
+
+We are interested in three land use metrics: percent pervious surface in watershed, percent vegetated surface in watershed, and percent tree cover in wetland. I use the sqldf package to gather and calculate these (other packages would work but I am most used to SQL language as a GIS user)
+
+```{r}
+
 J3PerviousPct<-sum(sqldf("select Pct from J3LandUse where Porosity = 'Yes'"))
 JMainPerviousPct<-sum(sqldf("SELECT Pct FROM JMainLandUse WHERE Porosity = 'Yes'"))
 HBPerviousPct<-sum(sqldf("SELECT Pct FROM HBLandUse WHERE Porosity = 'Yes'"))
@@ -42,7 +62,11 @@ ARTreePct<-sum(sqldf("SELECT Pct FROM ARLandUse WHERE TreeCvr = 'Yes'"))
 CCTreePct<-sum(sqldf("SELECT Pct FROM CCLandUse WHERE TreeCvr = 'Yes'"))
 CUTreePct<-sum(sqldf("SELECT Pct FROM CULandUse WHERE TreeCvr = 'Yes'"))
 
-#Parse out the eighteen individual sampling sites
+```
+
+Focusing now on manipulating the macroinvertebrates table, I find that the creation of certan data later on will become easier if we give each sampling site its own dataframe
+
+```{r}
 J31Tbl<-data.frame(sqldf("SELECT * FROM MacrosDraft WHERE Site = 'J3' AND SiteNo = '1'"))
 J32Tbl<-data.frame(sqldf("SELECT * FROM MacrosDraft WHERE Site = 'J3' AND SiteNo = '2'"))
 J33Tbl<-data.frame(sqldf("SELECT * FROM MacrosDraft WHERE Site = 'J3' AND SiteNo = '3'"))
@@ -61,39 +85,42 @@ CC3Tbl<-data.frame(sqldf("SELECT * FROM MacrosDraft WHERE Site = 'CC' AND SiteNo
 CU1Tbl<-data.frame(sqldf("SELECT * FROM MacrosDraft WHERE Site = 'CU' AND SiteNo = '1'"))
 CU2Tbl<-data.frame(sqldf("SELECT * FROM MacrosDraft WHERE Site = 'CU' AND SiteNo = '2'"))
 CU3Tbl<-data.frame(sqldf("SELECT * FROM MacrosDraft WHERE Site = 'CU' AND SiteNo = '3'"))
+```
 
-#Prepare the table
+Create the table that will be used for our statistical calculations- one where a series of dependent and independent variables are grouped under the key attribute of sampling site
+
+```{r,echo=FALSE}
 SiteName<-c('Jabez 3.1','Jabez 3.2','Jabez 3.3',
             'Jabez Main.1','Jabez Main.2','Jabez Main.3',
             'Howards Branch.1','Howards Branch.2','Howards Branch.3',
             'Arthurs Run.1','Arthurs Run.2','Arthurs Run.3',
             'Cattail Creek Lower.1','Cattail Creek Lower.2','Cattail Creek Lower.3',
             'Cattail Creek Upper.1','Cattail Creek Upper.2','Cattail Creek Upper.3')
+Restored<-c(rep(TRUE,times=3),rep(FALSE,times=3),rep(TRUE,times=3),
+           rep(FALSE,times=3),rep(TRUE,times=3),rep(FALSE,times=3))
+Habitat<-c("R","V","R","U","R","U","R","V","R","L","L","L","R","R","V","U","U","V")
 PerviousPct<-c(rep(J3PerviousPct,times=3),rep(JMainPerviousPct,times=3),rep(HBPerviousPct,times=3),
                rep(ARPerviousPct,times=3),rep(CCPerviousPct,times=3),rep(CUPerviousPct,times=3))
 VegPct<-c(rep(J3VegPct,times=3),rep(JMainVegPct,times=3),rep(HBVegPct,times=3),
                rep(ARVegPct,times=3),rep(CCVegPct,times=3),rep(CUVegPct,times=3))
 TreePct<-c(rep(J3TreePct,times=3),rep(JMainTreePct,times=3),rep(HBTreePct,times=3),
                rep(ARTreePct,times=3),rep(CCTreePct,times=3),rep(CUTreePct,times=3))
-Restored<-c(rep(TRUE,times=3),rep(FALSE,times=3),rep(TRUE,times=3),
-           rep(FALSE,times=3),rep(TRUE,times=3),rep(FALSE,times=3))
 Size<-c(rep(3032553,times=3),rep(10389250,times=3),rep(948410,times=3),
         rep(428450,times=3),rep(6373450,times=3),rep(4471850,times=3))
-Habitat<-c("R","V","R","U","R","U","R","V","R","L","L","L","R","R","V","U","U","V")
-FlowRate<-c(rep(0.00894,times=3),rep(0.07565,times=3),rep(0.00533,times=3),
-            rep(0.00294,times=3),rep(0.04446,times=3),rep(0.02798,times=3))
+FlowRate<-c(rep(0.00894*1000000,times=3),rep(0.07565*1000000,times=3),rep(0.00533*1000000,times=3),
+            rep(0.00294*1000000,times=3),rep(0.04446*1000000,times=3),rep(0.02798*1000000,times=3))
 MacroTally<-c(sum(J31Tbl$GraphCount),sum(J32Tbl$GraphCount),sum(J33Tbl$GraphCount),
              sum(JMain1Tbl$GraphCount),sum(JMain2Tbl$GraphCount),sum(JMain3Tbl$GraphCount),
              sum(HB1Tbl$GraphCount),sum(HB2Tbl$GraphCount),sum(HB3Tbl$GraphCount),
              sum(AR1Tbl$GraphCount),sum(AR2Tbl$GraphCount),sum(AR3Tbl$GraphCount),
              sum(CC1Tbl$GraphCount),sum(CC2Tbl$GraphCount),sum(CC3Tbl$GraphCount),
              sum(CU1Tbl$GraphCount),sum(CU2Tbl$GraphCount),sum(CU3Tbl$GraphCount))
-TotalMass<-c(sum(J31Tbl$Weight),sum(J32Tbl$Weight),sum(J33Tbl$Weight),
-             sum(JMain1Tbl$Weight),sum(JMain2Tbl$Weight),sum(JMain3Tbl$Weight),
-             sum(HB1Tbl$Weight),sum(HB2Tbl$Weight),sum(HB3Tbl$Weight),
-             sum(AR1Tbl$Weight),sum(AR2Tbl$Weight),sum(AR3Tbl$Weight),
-             sum(CC1Tbl$Weight),sum(CC2Tbl$Weight),sum(CC3Tbl$Weight),
-             sum(CU1Tbl$Weight),sum(CU2Tbl$Weight),sum(CU3Tbl$Weight))
+TotalMass<-c(sum(J31Tbl$Weight,na.rm = TRUE),sum(J32Tbl$Weight,na.rm = TRUE),sum(J33Tbl$Weight,na.rm = TRUE),
+             sum(JMain1Tbl$Weight,na.rm = TRUE),sum(JMain2Tbl$Weight,na.rm = TRUE),sum(JMain3Tbl$Weight,na.rm = TRUE),
+             sum(HB1Tbl$Weight,na.rm = TRUE),sum(HB2Tbl$Weight,na.rm = TRUE),sum(HB3Tbl$Weight,na.rm = TRUE),
+             sum(AR1Tbl$Weight,na.rm = TRUE),sum(AR2Tbl$Weight,na.rm = TRUE),sum(AR3Tbl$Weight,na.rm = TRUE),
+             sum(CC1Tbl$Weight,na.rm = TRUE),sum(CC2Tbl$Weight,na.rm = TRUE),sum(CC3Tbl$Weight,na.rm = TRUE),
+             sum(CU1Tbl$Weight,na.rm = TRUE),sum(CU2Tbl$Weight,na.rm = TRUE),sum(CU3Tbl$Weight,na.rm = TRUE))
 EPTAsPct<-c((sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'J3' AND SiteNo = '1' AND TaxOrder = 'Ephemeroptera' OR Site = 'J3' AND SiteNo = '1' AND TaxOrder = 'Plecoptera' OR Site = 'J3' AND SiteNo = '1' AND TaxOrder = 'Trichoptera'"))/sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'J3' AND SiteNo = '1' ")))*100,
             (sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'J3' AND SiteNo = '2' AND TaxOrder = 'Ephemeroptera' OR Site = 'J3' AND SiteNo = '2' AND TaxOrder = 'Plecoptera' OR Site = 'J3' AND SiteNo = '2' AND TaxOrder = 'Trichoptera'"))/sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'J3' AND SiteNo = '2' ")))*100,
             (sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'J3' AND SiteNo = '3' AND TaxOrder = 'Ephemeroptera' OR Site = 'J3' AND SiteNo = '3' AND TaxOrder = 'Plecoptera' OR Site = 'J3' AND SiteNo = '3' AND TaxOrder = 'Trichoptera'"))/sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'J3' AND SiteNo = '3' ")))*100,
@@ -112,7 +139,19 @@ EPTAsPct<-c((sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'J3' AND
             (sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'CU' AND SiteNo = '1' AND TaxOrder = 'Ephemeroptera' OR Site = 'CU' AND SiteNo = '1' AND TaxOrder = 'Plecoptera' OR Site = 'CU' AND SiteNo = '1' AND TaxOrder = 'Trichoptera'"))/sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'CU' AND SiteNo = '1' ")))*100,
             (sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'CU' AND SiteNo = '2' AND TaxOrder = 'Ephemeroptera' OR Site = 'CU' AND SiteNo = '2' AND TaxOrder = 'Plecoptera' OR Site = 'CU' AND SiteNo = '2' AND TaxOrder = 'Trichoptera'"))/sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'CU' AND SiteNo = '2' ")))*100,
             (sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'CU' AND SiteNo = '3' AND TaxOrder = 'Ephemeroptera' OR Site = 'CU' AND SiteNo = '3' AND TaxOrder = 'Plecoptera' OR Site = 'CU' AND SiteNo = '3' AND TaxOrder = 'Trichoptera'"))/sum(sqldf("SELECT GraphCount FROM MacrosDraft WHERE Site = 'CU' AND SiteNo = '3' ")))*100)
-FinalDataFrameHABITAT<-data.frame(SiteName,Restored,Size,Habitat,PerviousPct,VegPct,TreePct,FlowRate,MacroTally,TotalMass,EPTAsPct)
+
+FinalDataFrameHABITAT<-data.frame(SiteName,Restored,Habitat,Size,FlowRate)
+FinalDataFrameHABITAT$DO<-SiteData$DO
+FinalDataFrameHABITAT$Temperature<-SiteData$Temp
+FinalDataFrameHABITAT$Conductivity<-SiteData$Cond
+FinalDataFrameHABITAT$PebbleSize<-((SiteData$PblCountL+SiteData$PblCountW+SiteData$PblCountD)/3)
+FinalDataFrameHABITAT$PerviousPct<-PerviousPct
+FinalDataFrameHABITAT$VegPct<-VegPct
+FinalDataFrameHABITAT$TreePct<-TreePct
+FinalDataFrameHABITAT$Date<-SiteData$Date
+FinalDataFrameHABITAT$MacroTally<-MacroTally
+FinalDataFrameHABITAT$TotalMass<-TotalMass
+FinalDataFrameHABITAT$EPTAsPct<-EPTAsPct
 TaxaCount <- MacrosDraft %>% 
   pivot_longer(Family) %>% 
   count(name, value)
@@ -317,7 +356,53 @@ CU2FFGShannon<- -sum((CU2FFGCount$n/sum(CU2FFGCount$n))*log((CU2FFGCount$n/sum(C
 CU3FFGShannon<- -sum((CU3FFGCount$n/sum(CU3FFGCount$n))*log((CU3FFGCount$n/sum(CU3FFGCount$n))))
 FinalDataFrameHABITAT$FFGDiversity<- c(J31FFGShannon,J32FFGShannon,J33FFGShannon,JMain1FFGShannon,JMain2FFGShannon,JMain3FFGShannon,HB1FFGShannon,HB2FFGShannon,HB3FFGShannon,AR1FFGShannon,AR2FFGShannon,AR3FFGShannon,CC1FFGShannon,CC2FFGShannon,CC3FFGShannon,CU1FFGShannon,CU2FFGShannon,CU3FFGShannon)
 
+```
 
+INDEPENDENT VARIABLES
+SiteName= the name of the river the sample was taken from plus a 1 2 or 3 indicating the downstream to upstream-most position
+Restored= whether or not the site had undergone RSC engineering by Underwood
+Habitat= qualitative measurement of what might attract macros to the area
+  R: Cobble riffle
+  V: Aquatic vegetation (living)
+  U: Shaded undercut bank
+  L: Dead layers of leaf litter
+Size= Square meterage of the watershed, measured from downstream-most site
+FlowRate= Cubic centimeters per second of water moving through a carefully-chosen transect of the given river
+DO= Dissolved oxygen measured in miligrams per liter by YSI sampler
+Temperature= Temperature of water in degrees Celsius measured by YSI sampler
+Conductivity= Conductivity of water in S/cm measured by YSI sampler
+PblCount= Average of the three longest pebble axes, taken for 25 pebbles at each site (modified Wolman pebble count)
+PerviousPct= % of river's watershed that is covered in a pervious surface (forest cover, cropland, etc)
+VegPct= % of river's watershed that is actively covered in vegetation
+TreePct= % of river's watershed that is wooded
+Date= day of year sample was taken
+
+DEPENDENT VARIABLES
+MacroTally= Raw number of macroinvertebrates at each site
+TotalMass= Sum of mass (in mg) of all macroinvertebrates at sampling site
+EPTAsPct= The % of the total number of macroinvertebrates that were Ephemeroptera (mayflies), Plecoptera (stoneflies), or Trichoptera (caddisflies). These three orders are of special importance because they are highly disturbance-sensitive.
+NumTaxa= Number of distinct taxa at a sampling site
+ShannonDiversity= Site's Shannon Diversity Index value, a good metric that factors in both species richness and species evenness
+NumFFG= Number of distinct functional feeding groups (shredder, scraper, gatherer, predator, filterer) represented in a sampling site's biota
+FFGDiversity= The Shannon Diversity Index but run on FFG instead of taxa
+
+
+
+##PART TWO ANSWERING THE QUESTIONS ~ GRAPHS AND STATISTICAL TESTS
+Question 1- Are restored stream-wetland complexes supporting a higher biomass and functional feeding group diversity of macroinvertebrates than unrestored streams?
+Independent variable: Restored
+Dependent variable: TotalMass, EPTAsPct, NumFFG, FFGDiversity
+(Qualitative vs. Quantitative- best to use ANOVAs to test and bar graphs to display)
+
+```{r}
+aov1<-aov(TotalMass~Restored,data=FinalDataFrameHABITAT)
+summary(aov1)
+
+aov2<-aov(EPTAsPct~Restored,data=FinalDataFrameHABITAT)
+summary(aov2)
+
+aov3<-aov(EPTAsPct~Restored,data=FinalDataFrameHABITAT)
+summary(aov2)
 
 
 
