@@ -103,7 +103,7 @@ Create the table that will be used for our statistical calculations- one
 where a series of dependent and independent variables are grouped under
 the key attribute of sampling site
 
-```{r,echo=FALSE}
+```{r}
 SiteName<-c('Jabez 3.1','Jabez 3.2','Jabez 3.3',
             'Jabez Main.1','Jabez Main.2','Jabez Main.3',
             'Howards Branch.1','Howards Branch.2','Howards Branch.3',
@@ -369,6 +369,7 @@ CU1FFGShannon<- -sum((CU1FFGCount$n/sum(CU1FFGCount$n))*log((CU1FFGCount$n/sum(C
 CU2FFGShannon<- -sum((CU2FFGCount$n/sum(CU2FFGCount$n))*log((CU2FFGCount$n/sum(CU2FFGCount$n))))
 CU3FFGShannon<- -sum((CU3FFGCount$n/sum(CU3FFGCount$n))*log((CU3FFGCount$n/sum(CU3FFGCount$n))))
 FinalDataFrameHABITAT$FFGDiversity<- c(J31FFGShannon,J32FFGShannon,J33FFGShannon,JMain1FFGShannon,JMain2FFGShannon,JMain3FFGShannon,HB1FFGShannon,HB2FFGShannon,HB3FFGShannon,AR1FFGShannon,AR2FFGShannon,AR3FFGShannon,CC1FFGShannon,CC2FFGShannon,CC3FFGShannon,CU1FFGShannon,CU2FFGShannon,CU3FFGShannon)
+print(FinalDataFrameHABITAT)
 
 ```
 
@@ -479,3 +480,15 @@ cor.test(x=FinalDataFrameHABITAT$PerviousPct,y=FinalDataFrameHABITAT$FFGDiversit
 
 ```
 
+##PART THREE VISUALIZING WITH GRAPHS
+Graphs to help answer Question 1
+
+```{r}
+
+ggplot(FinalDataFrameHABITAT,aes(x=reorder(SiteName,-TotalMass),y=TotalMass,fill=Restored))+geom_bar(stat="identity")+coord_flip()+xlab("Sampling Site")+ylab("Total Mass (miligrams)")+ggtitle("Macroinvertebrate Mass per sampling site")+theme_minimal()
+
+ggplot(FinalDataFrameHABITAT,aes(x=reorder(SiteName,-FFGDiversity),y=FFGDiversity,fill=Restored))+geom_bar(stat="identity")+coord_flip()+xlab("Sampling Site")+ylab("FFG SHDI per site")+ggtitle("Macroinvertebrate functional feeding group SHDI per site")+theme_minimal()
+
+ggplot(FinalDataFrameHABITAT,aes(x=reorder(SiteName,-TotalMass),y=TotalMass,fill=Habitat))+geom_bar(stat="identity")+coord_flip()+xlab("Sampling Site")+ylab("Total Mass (miligrams)")+ggtitle("Macroinvertebrate Mass per sampling site")+theme_minimal()
+  
+```
