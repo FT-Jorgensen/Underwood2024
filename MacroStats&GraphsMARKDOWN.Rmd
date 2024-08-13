@@ -487,8 +487,62 @@ Graphs to help answer Question 1
 
 ggplot(FinalDataFrameHABITAT,aes(x=reorder(SiteName,-TotalMass),y=TotalMass,fill=Restored))+geom_bar(stat="identity")+coord_flip()+xlab("Sampling Site")+ylab("Total Mass (miligrams)")+ggtitle("Macroinvertebrate Mass per sampling site")+theme_minimal()
 
-ggplot(FinalDataFrameHABITAT,aes(x=reorder(SiteName,-FFGDiversity),y=FFGDiversity,fill=Restored))+geom_bar(stat="identity")+coord_flip()+xlab("Sampling Site")+ylab("FFG SHDI per site")+ggtitle("Macroinvertebrate functional feeding group SHDI per site")+theme_minimal()
+ggplot(FinalDataFrameHABITAT,aes(x=reorder(SiteName,-EPTAsPct),y=EPTAsPct,fill=Restored))+geom_bar(stat="identity")+coord_flip()+xlab("Sampling Site")+ylab("EPT Taxa as Percentage of Total Taxa")+ggtitle("EPT % per sampling site")+theme_minimal()
+
+ggplot(FinalDataFrameHABITAT,aes(x=reorder(SiteName,-FFGDiversity),y=FFGDiversity,fill=Habitat))+geom_bar(stat="identity")+coord_flip()+xlab("Sampling Site")+ylab("FFG SHDI per site")+ggtitle("Macroinvertebrate functional feeding group SHDI per site")+theme_minimal()
 
 ggplot(FinalDataFrameHABITAT,aes(x=reorder(SiteName,-TotalMass),y=TotalMass,fill=Habitat))+geom_bar(stat="identity")+coord_flip()+xlab("Sampling Site")+ylab("Total Mass (miligrams)")+ggtitle("Macroinvertebrate Mass per sampling site")+theme_minimal()
-  
+
+ggplot(FinalDataFrameHABITAT,aes(x=TreePct,y=FFGDiversity,color=Restored))+geom_point()+xlab("Percentage Tree Cover in Sample Watershed")+ylab("Functional Feeding Group SHDI Value")+theme_minimal()+geom_smooth(method="lm",color="black")
+
+ggplot(FinalDataFrameHABITAT,aes(x=TreePct,y=TotalMass,color=Restored))+geom_point()+xlab("Percentage Tree Cover in Sample Watershed")+ylab("Total Biomass in miligrams")+theme_minimal()+geom_smooth(method="lm",color="black")
+
+ggplot(FinalDataFrameHABITAT,aes(x=PebbleSize,y=TotalMass))+geom_point()+xlab("Mean Pebble Dimension at Sampling Site (mm)")+ylab("Total Biomass in miligrams")+theme_minimal()+geom_smooth(method="lm")
+
+ggplot(FinalDataFrameHABITAT,aes(x=PebbleSize,y=FFGDiversity))+geom_point()+xlab("Mean Pebble Dimension at Sampling Site (mm)")+ylab("Functional Feeding Group SHDI Value")+theme_minimal()+geom_smooth(method="lm")
+
+ggplot(FinalDataFrameHABITAT,aes(x=PebbleSize,y=EPTAsPct))+geom_point()+xlab("Mean Pebble Dimension at Sampling Site (mm)")+ylab("EPT Taxa as Percent of Total Taxa")+theme_minimal()+geom_smooth(method="lm")
+
+ggplot(FinalDataFrameHABITAT,aes(x=Size,y=TotalMass))+geom_point()+xlab("Size of Watershed (m^2)")+ylab("Total Biomass in miligrams")+theme_minimal()+geom_smooth(method="lm")
+
+ggplot(FinalDataFrameHABITAT,aes(x=Size,y=FFGDiversity))+geom_point()+xlab("Size of Watershed (m^2)")+ylab("Functional Feeding Group SHDI Value")+theme_minimal()+geom_smooth(method="lm")
+
+ggplot(FinalDataFrameHABITAT,aes(x=Size,y=EPTAsPct))+geom_point()+xlab("Size of Watershed (m^2)")+ylab("EPT Taxa as Percent of Total Taxa")+theme_minimal()+geom_smooth(method="lm")
+
+ggplot(FinalDataFrameHABITAT,aes(x=FlowRate,y=TotalMass))+geom_point()+xlab("Flow Rate (cm^2/s")+ylab("Total Biomass in miligrams")+theme_minimal()+geom_smooth(method="lm")
+
+ggplot(FinalDataFrameHABITAT,aes(x=FlowRate,y=FFGDiversity))+geom_point()+xlab("Flow Rate (cm^2/s)")+ylab("Functional Feeding Group SHDI Value")+theme_minimal()+geom_smooth(method="lm")
+
+ggplot(FinalDataFrameHABITAT,aes(x=FlowRate,y=EPTAsPct))+geom_point()+xlab("Flow Rate (cm^2/s)")+ylab("EPT Taxa as Percent of Total Taxa")+theme_minimal()+geom_smooth(method="lm")
+
+ggplot(FinalDataFrameHABITAT,aes(x=DO,y=TotalMass))+geom_point()+xlab("Dissolved Oxygen")+ylab("Total Biomass in miligrams")+theme_minimal()+geom_smooth(method="lm")
+
+ggplot(FinalDataFrameHABITAT,aes(x=DO,y=FFGDiversity))+geom_point()+xlab("Dissolved Oxygen")+ylab("Functional Feeding Group SHDI Value")+theme_minimal()+geom_smooth(method="lm")
+
+ggplot(FinalDataFrameHABITAT,aes(x=DO,y=EPTAsPct))+geom_point()+xlab("Dissolved Oxygen")+ylab("EPT Taxa as Percent of Total Taxa")+theme_minimal()+geom_smooth(method="lm")
+
+ggplot(FinalDataFrameHABITAT,aes(x=Temperature,y=TotalMass))+geom_point()+xlab("Temperature")+ylab("Total Biomass in miligrams")+theme_minimal()+geom_smooth(method="lm")
+
+ggplot(FinalDataFrameHABITAT,aes(x=Temperature,y=FFGDiversity))+geom_point()+xlab("Temperature")+ylab("Functional Feeding Group SHDI Value")+theme_minimal()+geom_smooth(method="lm")
+
+ggplot(FinalDataFrameHABITAT,aes(x=Temperature,y=EPTAsPct))+geom_point()+xlab("Temperature")+ylab("EPT Taxa as Percent of Total Taxa")+theme_minimal()+geom_smooth(method="lm")
+
+ggplot(MacrosDraft,aes(x=reorder(CombSite,-Weight),y=Weight,fill=Family))+geom_bar(stat="identity")
+
 ```
+
+Checking for normality (Shapiro-Wilks) and biodiversity graph
+
+```{r}
+ggdensity(FinalDataFrameHABITAT$TotalMass, 
+          main = "Density plot of tooth length",
+          xlab = "Tooth length")
+shapiro.test(FinalDataFrameHABITAT$TotalMass)
+
+RareMacros<-filter(MacrosDraft,Family %in% c("Elmidae","Glossosomatidae","Hydropsychidae","Athericidae","Perlodidae"))
+
+ggplot(RareMacros,aes(x=CombSite,y=GraphCount,fill=TaxOrder))+geom_bar(stat="identity")+xlab("Sampling Site")+ylab("Number of Sensitive Species")
+
+```
+
+
