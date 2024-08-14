@@ -541,7 +541,9 @@ shapiro.test(FinalDataFrameHABITAT$TotalMass)
 
 RareMacros<-filter(MacrosDraft,Family %in% c("Elmidae","Glossosomatidae","Hydropsychidae","Athericidae","Perlodidae"))
 
-ggplot(RareMacros,aes(x=CombSite,y=GraphCount,fill=TaxOrder))+geom_bar(stat="identity")+xlab("Sampling Site")+ylab("Number of Sensitive Species")
+ggplot(RareMacros,aes(x=CombSite,y=GraphCount,fill=TaxOrder))+geom_bar(stat="identity")+xlab("Sampling Site")+ylab("Number of Sensitive Species")+ggtitle("Sensitive Taxa (Mid-Atlantic water tolerance rating of 5 or less) and their Abundance at Sites")
+
+ggplot(MacrosDraft,aes(x=CombSite,y=GraphCount,fill=TaxOrder))+geom_bar(stat="identity")+xlab("Sampling Site")+ylab("Total Abundance")+ggtitle("Taxa Frequency by Sampling Site")
 
 ```
 
